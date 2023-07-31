@@ -3,7 +3,7 @@ pirem用にモックデバイスを追加するためのモジュール
 
 設定ファイルによって、モックデバイスのファームウェアバージョン、ドライバーバージョン、受信するデータ、受信機能、送信機能の有無を設定できます。
 
-設定例
+## 設定例
 ```json
 {
   "enable_reflection": true,
@@ -18,7 +18,7 @@ pirem用にモックデバイスを追加するためのモジュール
         "firmware_version": "0.1.0",
         "driver_version": "0.1.1",
         "receiving_ir_data": {
-          "varrier_freq_kilo_hz": 40,
+          "carrier_freq_kilo_hz": 40,
           "pluse_nano_sec": [10,20,30,40,50]
         }
       }
@@ -26,3 +26,15 @@ pirem用にモックデバイスを追加するためのモジュール
   ]
 }
 ```
+
+| キー | 意味 |
+| ---- | ---- |
+| `"can_send"` | 送信機能の有効化 |
+| `"can_receive"` | 受信機能の有効化 |
+| `"firmware_version"` | ファームウェアバージョン |
+| `"driver_version"` | ドライバーバージョン(Moduleのバージョン) |
+| `"receiving_ir_data"` | 赤外線を受信時のモックデータ |
+| `"varrier_freq_kilo_hz"` | 赤外線のキャリア周波数 |
+| `"pluse_nano_sec"` | 赤外線のデータ |
+
+
