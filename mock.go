@@ -16,7 +16,7 @@ type MockIRData struct {
 type Config struct {
 	CanSend         bool       `json:"can_send"`
 	CanReceive      bool       `json:"can_receive"`
-	SendIrData      MockIRData `json:"ir_data"`
+	ReceivingIrData MockIRData `json:"receiving_ir_data"`
 	FirmwareVersion string     `json:"firmware_version"`
 	DriverVersion   string     `json:"driver_version"`
 }
@@ -26,7 +26,7 @@ type Module struct{}
 type MockDev struct {
 	CanSend         bool
 	CanReceive      bool
-	SendIrData      MockIRData
+	ReceivingIrData MockIRData
 	FirmwareVersion string
 	DriverVersion   string
 }
@@ -37,9 +37,9 @@ func (p *Module) NewDriver(conf json.RawMessage) (module.Driver, error) {
 	dev := &MockDev{
 		CanSend:    config.CanSend,
 		CanReceive: config.CanReceive,
-		SendIrData: MockIRData{
-			CarrierFreqKiloHz: config.SendIrData.CarrierFreqKiloHz,
-			PluseNanoSec:      config.SendIrData.PluseNanoSec,
+		ReceivingIrData: MockIRData{
+			CarrierFreqKiloHz: config.ReceivingIrData.CarrierFreqKiloHz,
+			PluseNanoSec:      config.ReceivingIrData.PluseNanoSec,
 		},
 		FirmwareVersion: config.FirmwareVersion,
 		DriverVersion:   config.DriverVersion,
@@ -53,7 +53,11 @@ func (m *MockDev) SendIR(ctx context.Context, irdata *module.IRData) error {
 
 func (m *MockDev) ReceiveIR(ctx context.Context) (*module.IRData, error) {
 	fmt.Println("receive ir")
-	return &module.IRData{CarrierFreqKiloHz: m.SendIrData.CarrierFreqKiloHz, PluseNanoSec: m.SendIrData.PluseNanoSec}, nil
+	irdata := &module.IRData{
+		CarrierFreqKiloHz: m.ReceivingIrData.CarrierFreqKiloHz,
+		PluseNanoSec:      m.ReceivingIrData.PluseNanoSec,
+	}
+	return irdata, nil
 }
 
 func (m *MockDev) GetInfo(ctx context.Context) (*module.DeviceInfo, error) {
