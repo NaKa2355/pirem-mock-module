@@ -3,7 +3,6 @@ package mockdevice
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/NaKa2355/pirem/pkg/module/v1"
 )
@@ -52,7 +51,6 @@ func (m *MockDev) SendIR(ctx context.Context, irdata *module.IRData) error {
 }
 
 func (m *MockDev) ReceiveIR(ctx context.Context) (*module.IRData, error) {
-	fmt.Println("receive ir")
 	irdata := &module.IRData{
 		CarrierFreqKiloHz: m.ReceivingIrData.CarrierFreqKiloHz,
 		PluseNanoSec:      m.ReceivingIrData.PluseNanoSec,
