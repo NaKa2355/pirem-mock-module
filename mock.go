@@ -1,4 +1,4 @@
-package mockdevice
+package MockDriverice
 
 import (
 	"context"
@@ -22,7 +22,7 @@ type Config struct {
 
 type Module struct{}
 
-type MockDev struct {
+type MockDriver struct {
 	CanSend         bool
 	CanReceive      bool
 	ReceivingIrData MockIRData
@@ -33,7 +33,7 @@ type MockDev struct {
 func (p *Module) NewDriver(conf json.RawMessage) (module.Driver, error) {
 	config := Config{}
 	err := json.Unmarshal(conf, &config)
-	dev := &MockDev{
+	d := &MockDriver{
 		CanSend:    config.CanSend,
 		CanReceive: config.CanReceive,
 		ReceivingIrData: MockIRData{
@@ -43,14 +43,14 @@ func (p *Module) NewDriver(conf json.RawMessage) (module.Driver, error) {
 		FirmwareVersion: config.FirmwareVersion,
 		DriverVersion:   config.DriverVersion,
 	}
-	return dev, err
+	return d, err
 }
 
-func (m *MockDev) SendIR(ctx context.Context, irdata *module.IRData) error {
+func (m *MockDriver) SendIR(ctx context.Context, irdata *module.IRData) error {
 	return nil
 }
 
-func (m *MockDev) ReceiveIR(ctx context.Context) (*module.IRData, error) {
+func (m *MockDriver) ReceiveIR(ctx context.Context) (*module.IRData, error) {
 	irdata := &module.IRData{
 		CarrierFreqKiloHz: m.ReceivingIrData.CarrierFreqKiloHz,
 		PluseNanoSec:      m.ReceivingIrData.PluseNanoSec,
@@ -58,7 +58,7 @@ func (m *MockDev) ReceiveIR(ctx context.Context) (*module.IRData, error) {
 	return irdata, nil
 }
 
-func (m *MockDev) GetInfo(ctx context.Context) (*module.DeviceInfo, error) {
+func (m *MockDriver) GetInfo(ctx context.Context) (*module.DeviceInfo, error) {
 	return &module.DeviceInfo{
 		CanSend:         m.CanSend,
 		CanReceive:      m.CanReceive,
@@ -67,6 +67,6 @@ func (m *MockDev) GetInfo(ctx context.Context) (*module.DeviceInfo, error) {
 	}, nil
 }
 
-func (m *MockDev) Drop() error {
+func (m *MockDriver) Drop() error {
 	return nil
 }
