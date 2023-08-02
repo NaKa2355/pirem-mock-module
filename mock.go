@@ -54,6 +54,7 @@ func (p *Module) NewDriver(conf json.RawMessage) (module.Driver, error) {
 }
 
 func (m *MockDriver) SendIR(ctx context.Context, irdata *module.IRData) error {
+	time.Sleep(m.SendTime)
 	return nil
 }
 
@@ -62,6 +63,7 @@ func (m *MockDriver) ReceiveIR(ctx context.Context) (*module.IRData, error) {
 		CarrierFreqKiloHz: m.ReceivingIrData.CarrierFreqKiloHz,
 		PluseNanoSec:      m.ReceivingIrData.PluseNanoSec,
 	}
+	time.Sleep(m.ReceiveTime)
 	return irdata, nil
 }
 
