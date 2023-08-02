@@ -48,7 +48,7 @@ func (p *Module) NewDriver(conf json.RawMessage) (module.Driver, error) {
 		FirmwareVersion: config.FirmwareVersion,
 		DriverVersion:   config.DriverVersion,
 		ReceiveTime:     time.Duration(time.Millisecond * time.Duration(config.ReceiveTimeMs)),
-		SendTime:        time.Duration(time.Millisecond + time.Duration(config.SendTimeMs)),
+		SendTime:        time.Duration(time.Millisecond * time.Duration(config.SendTimeMs)),
 	}
 	return d, err
 }

@@ -17,6 +17,8 @@ PiRem用にモックデバイスを追加するためのモジュール
         "can_receive": true,
         "firmware_version": "0.1.0",
         "driver_version": "0.1.1",
+        "receive_time_ms": 3000,
+        "send_time_ms": 500,
         "receiving_ir_data": {
           "carrier_freq_kilo_hz": 40,
           "pluse_nano_sec": [10,20,30,40,50]
@@ -36,5 +38,7 @@ PiRem用にモックデバイスを追加するためのモジュール
 | `"receiving_ir_data"` | 赤外線を受信時のモックデータ |
 | `"varrier_freq_kilo_hz"` | 赤外線のキャリア周波数 |
 | `"pluse_nano_sec"` | 赤外線のデータ |
+| `"receive_time_ms"` | 赤外線受信にかかる時間(ms) |
+| `"send_time_ms"` | 赤外線送信にかかる時間(ms) |
 
 
