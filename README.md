@@ -17,8 +17,6 @@ PiRem用にモックデバイスを追加するためのモジュール
         "can_receive": true,
         "firmware_version": "0.1.0",
         "driver_version": "0.1.1",
-        "receive_time_ms": 3000,
-        "send_time_ms": 500,
         "receiving_ir_data": {
           "carrier_freq_kilo_hz": 40,
           "pluse_nano_sec": [10,20,30,40,50]
