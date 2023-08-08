@@ -45,7 +45,7 @@ PiRem用にモックデバイスを追加するためのモジュール
 | `"receive_error_message"` | 赤外線受信時に発生させるエラーのメッセージ |
 
 
-エラーコードの設定値 (`"send_error_code"``"receive_error_code"`共通)
+エラーコードの設定値 (`"send_error_code"` `"receive_error_code"`共通)
 | 値 | 意味 |
 | ---- | ---- |
 | `"invaild_input"` | 無効な入力 |
