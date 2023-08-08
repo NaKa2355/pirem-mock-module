@@ -3,6 +3,7 @@ package MockDriverice
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/NaKa2355/pirem/pkg/module/v1"
@@ -14,25 +15,33 @@ type MockIRData struct {
 }
 
 type Config struct {
-	CanSend         bool       `json:"can_send"`
-	CanReceive      bool       `json:"can_receive"`
-	ReceivingIrData MockIRData `json:"receiving_ir_data"`
-	ReceiveTimeMs   uint32     `json:"receive_time_ms"`
-	SendTimeMs      uint32     `json:"send_time_ms"`
-	FirmwareVersion string     `json:"firmware_version"`
-	DriverVersion   string     `json:"driver_version"`
+	CanSend             bool       `json:"can_send"`
+	CanReceive          bool       `json:"can_receive"`
+	ReceivingIrData     MockIRData `json:"receiving_ir_data"`
+	ReceiveTimeMs       uint32     `json:"receive_time_ms"`
+	SendTimeMs          uint32     `json:"send_time_ms"`
+	FirmwareVersion     string     `json:"firmware_version"`
+	DriverVersion       string     `json:"driver_version"`
+	SendErrorCode       string     `json:"send_error_code"`
+	SendErrorMessage    string     `json:"send_error_message"`
+	ReceiveErrorCode    string     `json:"receive_error_code"`
+	ReceiveErrorMessage string     `json:"receive_error_message"`
 }
 
 type Module struct{}
 
 type MockDriver struct {
-	CanSend         bool
-	CanReceive      bool
-	ReceivingIrData MockIRData
-	ReceiveTime     time.Duration
-	SendTime        time.Duration
-	FirmwareVersion string
-	DriverVersion   string
+	CanSend             bool
+	CanReceive          bool
+	ReceivingIrData     MockIRData
+	ReceiveTime         time.Duration
+	SendTime            time.Duration
+	FirmwareVersion     string
+	DriverVersion       string
+	SendErrorCode       string
+	SendErrorMessage    string
+	ReceiveErrorCode    string
+	ReceiveErrorMessage string
 }
 
 func (p *Module) NewDriver(conf json.RawMessage) (module.Driver, error) {
@@ -45,17 +54,36 @@ func (p *Module) NewDriver(conf json.RawMessage) (module.Driver, error) {
 			CarrierFreqKiloHz: config.ReceivingIrData.CarrierFreqKiloHz,
 			PluseNanoSec:      config.ReceivingIrData.PluseNanoSec,
 		},
-		FirmwareVersion: config.FirmwareVersion,
-		DriverVersion:   config.DriverVersion,
-		ReceiveTime:     time.Duration(time.Millisecond * time.Duration(config.ReceiveTimeMs)),
-		SendTime:        time.Duration(time.Millisecond * time.Duration(config.SendTimeMs)),
+		FirmwareVersion:     config.FirmwareVersion,
+		DriverVersion:       config.DriverVersion,
+		ReceiveTime:         time.Duration(time.Millisecond * time.Duration(config.ReceiveTimeMs)),
+		SendTime:            time.Duration(time.Millisecond * time.Duration(config.SendTimeMs)),
+		ReceiveErrorCode:    config.ReceiveErrorCode,
+		ReceiveErrorMessage: config.ReceiveErrorMessage,
+		SendErrorCode:       config.SendErrorCode,
+		SendErrorMessage:    config.SendErrorMessage,
 	}
 	return d, err
 }
 
+func convertError(errCode string, errMessage string) error {
+	switch errCode {
+	case "invaild_input":
+		return module.WrapErr(module.CodeInvaildInput, fmt.Errorf(errMessage))
+	case "timeout":
+		return module.WrapErr(module.CodeTimeout, fmt.Errorf(errMessage))
+	case "busy":
+		return module.WrapErr(module.CodeBusy, fmt.Errorf(errMessage))
+	case "unknown":
+		return module.WrapErr(module.CodeUnknown, fmt.Errorf(errMessage))
+	default:
+		return nil
+	}
+}
+
 func (m *MockDriver) SendIR(ctx context.Context, irdata *module.IRData) error {
 	time.Sleep(m.SendTime)
-	return nil
+	return convertError(m.SendErrorCode, m.SendErrorMessage)
 }
 
 func (m *MockDriver) ReceiveIR(ctx context.Context) (*module.IRData, error) {
@@ -64,7 +92,7 @@ func (m *MockDriver) ReceiveIR(ctx context.Context) (*module.IRData, error) {
 		PluseNanoSec:      m.ReceivingIrData.PluseNanoSec,
 	}
 	time.Sleep(m.ReceiveTime)
-	return irdata, nil
+	return irdata, convertError(m.ReceiveErrorCode, m.ReceiveErrorMessage)
 }
 
 func (m *MockDriver) GetInfo(ctx context.Context) (*module.DeviceInfo, error) {
