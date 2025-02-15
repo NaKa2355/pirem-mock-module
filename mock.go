@@ -1,4 +1,4 @@
-package MockDriverice
+package MockDevices
 
 import (
 	"context"
