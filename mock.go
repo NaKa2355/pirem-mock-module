@@ -1,10 +1,8 @@
 package MockDevices
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/NaKa2355/pirem/pkg/driver_module/v1"
 )
@@ -30,42 +28,28 @@ type Config struct {
 
 type Module struct{}
 
-type MockDriver struct {
-	CanSend             bool
-	CanReceive          bool
-	ReceivingIrData     MockIRData
-	ReceiveTime         time.Duration
-	SendTime            time.Duration
-	FirmwareVersion     string
-	DriverVersion       string
-	SendErrorCode       string
-	SendErrorMessage    string
-	ReceiveErrorCode    string
-	ReceiveErrorMessage string
-}
-
 var _ driver_module.DriverModule = &Module{}
 
 func (p *Module) LoadDevice(conf json.RawMessage) (driver_module.Device, error) {
 	config := Config{}
 	err := json.Unmarshal(conf, &config)
-	d := &MockDriver{
-		CanSend:    config.CanSend,
-		CanReceive: config.CanReceive,
-		ReceivingIrData: MockIRData{
-			CarrierFreqKiloHz: config.ReceivingIrData.CarrierFreqKiloHz,
-			PluseNanoSec:      config.ReceivingIrData.PluseNanoSec,
-		},
-		FirmwareVersion:     config.FirmwareVersion,
-		DriverVersion:       config.DriverVersion,
-		ReceiveTime:         time.Duration(time.Millisecond * time.Duration(config.ReceiveTimeMs)),
-		SendTime:            time.Duration(time.Millisecond * time.Duration(config.SendTimeMs)),
-		ReceiveErrorCode:    config.ReceiveErrorCode,
-		ReceiveErrorMessage: config.ReceiveErrorMessage,
-		SendErrorCode:       config.SendErrorCode,
-		SendErrorMessage:    config.SendErrorMessage,
+	if err != nil {
+		return nil, err
 	}
-	return d, err
+
+	if config.CanSend && config.CanReceive {
+		d := NewSendReceiveDevice(&config)
+		return &d, nil
+	}
+	if config.CanSend {
+		d := NewSendOnlyDevice(&config)
+		return &d, nil
+	}
+	if config.CanReceive {
+		d := NewReceiveOnlyDevice(&config)
+		return &d, nil
+	}
+	return nil, fmt.Errorf("failed to create device")
 }
 
 func convertError(errCode string, errMessage string) error {
@@ -81,29 +65,4 @@ func convertError(errCode string, errMessage string) error {
 	default:
 		return nil
 	}
-}
-
-func (m *MockDriver) SendIR(ctx context.Context, irdata *driver_module.IRData) error {
-	time.Sleep(m.SendTime)
-	return convertError(m.SendErrorCode, m.SendErrorMessage)
-}
-
-func (m *MockDriver) ReceiveIR(ctx context.Context) (*driver_module.IRData, error) {
-	irdata := &driver_module.IRData{
-		CarrierFreqKiloHz: m.ReceivingIrData.CarrierFreqKiloHz,
-		PluseNanoSec:      m.ReceivingIrData.PluseNanoSec,
-	}
-	time.Sleep(m.ReceiveTime)
-	return irdata, convertError(m.ReceiveErrorCode, m.ReceiveErrorMessage)
-}
-
-func (m *MockDriver) GetInfo(ctx context.Context) (*driver_module.DeviceInfo, error) {
-	return &driver_module.DeviceInfo{
-		DriverVersion:   m.DriverVersion,
-		FirmwareVersion: m.FirmwareVersion,
-	}, nil
-}
-
-func (m *MockDriver) Drop() error {
-	return nil
 }
