@@ -44,7 +44,7 @@ type MockDriver struct {
 	ReceiveErrorMessage string
 }
 
-func (p *Module) LoadDriver(conf json.RawMessage) (driver_module.Device, error) {
+func (p *Module) LoadDevice(conf json.RawMessage) (driver_module.Device, error) {
 	config := Config{}
 	err := json.Unmarshal(conf, &config)
 	d := &MockDriver{
