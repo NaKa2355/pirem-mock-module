@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/NaKa2355/pirem/pkg/module/v1"
+	"github.com/NaKa2355/pirem/pkg/driver_module/v1"
 )
 
 type MockIRData struct {
@@ -44,7 +44,7 @@ type MockDriver struct {
 	ReceiveErrorMessage string
 }
 
-func (p *Module) NewDriver(conf json.RawMessage) (module.Driver, error) {
+func (p *Module) LoadDriver(conf json.RawMessage) (driver_module.Device, error) {
 	config := Config{}
 	err := json.Unmarshal(conf, &config)
 	d := &MockDriver{
@@ -69,25 +69,25 @@ func (p *Module) NewDriver(conf json.RawMessage) (module.Driver, error) {
 func convertError(errCode string, errMessage string) error {
 	switch errCode {
 	case "invaild_input":
-		return module.WrapErr(module.CodeInvaildInput, fmt.Errorf(errMessage))
+		return driver_module.WrapErr(driver_module.CodeInvaildInput, fmt.Errorf(errMessage))
 	case "timeout":
-		return module.WrapErr(module.CodeTimeout, fmt.Errorf(errMessage))
+		return driver_module.WrapErr(driver_module.CodeTimeout, fmt.Errorf(errMessage))
 	case "busy":
-		return module.WrapErr(module.CodeBusy, fmt.Errorf(errMessage))
+		return driver_module.WrapErr(driver_module.CodeBusy, fmt.Errorf(errMessage))
 	case "unknown":
-		return module.WrapErr(module.CodeUnknown, fmt.Errorf(errMessage))
+		return driver_module.WrapErr(driver_module.CodeUnknown, fmt.Errorf(errMessage))
 	default:
 		return nil
 	}
 }
 
-func (m *MockDriver) SendIR(ctx context.Context, irdata *module.IRData) error {
+func (m *MockDriver) SendIR(ctx context.Context, irdata *driver_module.IRData) error {
 	time.Sleep(m.SendTime)
 	return convertError(m.SendErrorCode, m.SendErrorMessage)
 }
 
-func (m *MockDriver) ReceiveIR(ctx context.Context) (*module.IRData, error) {
-	irdata := &module.IRData{
+func (m *MockDriver) ReceiveIR(ctx context.Context) (*driver_module.IRData, error) {
+	irdata := &driver_module.IRData{
 		CarrierFreqKiloHz: m.ReceivingIrData.CarrierFreqKiloHz,
 		PluseNanoSec:      m.ReceivingIrData.PluseNanoSec,
 	}
@@ -95,10 +95,8 @@ func (m *MockDriver) ReceiveIR(ctx context.Context) (*module.IRData, error) {
 	return irdata, convertError(m.ReceiveErrorCode, m.ReceiveErrorMessage)
 }
 
-func (m *MockDriver) GetInfo(ctx context.Context) (*module.DeviceInfo, error) {
-	return &module.DeviceInfo{
-		CanSend:         m.CanSend,
-		CanReceive:      m.CanReceive,
+func (m *MockDriver) GetInfo(ctx context.Context) (*driver_module.DeviceInfo, error) {
+	return &driver_module.DeviceInfo{
 		DriverVersion:   m.DriverVersion,
 		FirmwareVersion: m.FirmwareVersion,
 	}, nil
